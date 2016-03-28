@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lunch Decision Support System</title>
+  <link rel="stylesheet" href="css/w3.css">
+  <body>
+    <script src="scripts/elm.js"></script>
+    <script src="scripts/gps.js"></script>
+    <script>
+      var app=Elm.fullscreen
+        (Elm.Main,
+         {
+          position:
+            {
+              latitude: 0,
+              longitude: 0
+            }
+         }
+        );
+        startGps(app);
+    </script>
+  </body>
+</html>
