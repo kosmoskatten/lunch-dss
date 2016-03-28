@@ -20,10 +20,10 @@ function receivePos(pos) {
       latitude: pos.coords.latitude,
       longitude: pos.coords.longitude
     };
-  this.app.ports.position.send(rec);
+  this.app.ports.gpsPosition.send(rec);
 }
 
 function receiveErr(err) {
-  console.log("GPS err");
+  this.app.ports.gpsError.send("Some error");
 }
 

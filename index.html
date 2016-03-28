@@ -11,11 +11,12 @@
       var app=Elm.fullscreen
         (Elm.Main,
          {
-          position:
+          gpsPosition:
             {
               latitude: 0,
               longitude: 0
-            }
+            },
+          gpsError: ""
          }
         );
         startGps(app);
