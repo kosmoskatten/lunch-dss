@@ -1,0 +1,12 @@
+[
+ {
+   "name": "Gyllene Måsen",
+   "url": "http://baarf.com",
+   "rating": 0,
+   "position":
+      {
+        "latitude": 1.1,
+        "longitude": 2.2
+      }
+ }
+]
