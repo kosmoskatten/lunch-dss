@@ -12262,6 +12262,23 @@ Elm.Position.make = function (_elm) {
        $Result = Elm.Result.make(_elm),
        $Signal = Elm.Signal.make(_elm);
        var _op = {};
+       var unit = 75000;
+       var Distance = function (a) { return {ctor: "Distance",_0: a};};
+       var calculateDistance = F2(function (pos1,pos2) {
+                                  var deltaLong = pos1.longitude - pos2.longitude;
+                                  var deltaLat = pos1.latitude - pos2.latitude;
+                                  var sumOfSquares = Math.pow(deltaLat,2) + Math.pow(deltaLong,2);
+                                  return Distance($Basics.sqrt(sumOfSquares));
+                               });
+       var toMeter = function (_p0) {
+          var _p1 = _p0;
+          return Distance(_p1._0 * unit);
+       };
+       var toKM = function (d) {
+          var _p2 = toMeter(d);
+          var d$ = _p2._0;
+          return Distance(d$ / 1000);
+       };
        var Position = F2(function (a,b) {
                          return {latitude: a,longitude: b};
                       });
@@ -12271,6 +12288,7 @@ Elm.Position.make = function (_elm) {
                         ,A2($Json$Decode._op[":="],"longitude",$Json$Decode.$float));
        return _elm.Position.values = {_op: _op
                                      ,position: position
+                                     ,calculateDistance: calculateDistance
                                      ,Position: Position};
     };
 Elm.Restaurant = Elm.Restaurant || {};
@@ -12345,7 +12363,7 @@ Elm.App.make = function (_elm) {
                               ,_U.list([w3Container,w3Blue])
                               ,_U.list([A2($Html.h2
                                           ,_U.list([w3Center])
-                                          ,_U.list([$Html.text("Lunch? Chose from:")]))]));
+                                          ,_U.list([$Html.text("Hungrig? Välj en strategi:")]))]));
        var update = F2(function (action,model) {
                        var _p0 = action;
                        switch (_p0.ctor)
@@ -12385,7 +12403,7 @@ Elm.App.make = function (_elm) {
                                                                          ,_0: "width"
                                                                          ,_1: "33.3%"}]))
                                         ,A2($Html$Events.onClick,address,SwitchDisplay(Closest))])
-                               ,_U.list([$Html.text("Closest")]))
+                               ,_U.list([$Html.text("Närmaste")]))
                             ,A2($Html.button
                                ,_U.list([w3Btn
                                         ,w3LightBlue
@@ -12393,7 +12411,7 @@ Elm.App.make = function (_elm) {
                                                                          ,_0: "width"
                                                                          ,_1: "33.3%"}]))
                                         ,A2($Html$Events.onClick,address,SwitchDisplay(Best))])
-                               ,_U.list([$Html.text("Best")]))
+                               ,_U.list([$Html.text("Bästa")]))
                             ,A2($Html.button
                                ,_U.list([w3Btn
                                         ,w3LightBlue
@@ -12401,7 +12419,7 @@ Elm.App.make = function (_elm) {
                                                                          ,_0: "width"
                                                                          ,_1: "33.3%"}]))
                                         ,A2($Html$Events.onClick,address,SwitchDisplay(Random))])
-                               ,_U.list([$Html.text("Random")]))]));
+                               ,_U.list([$Html.text("Slumpen")]))]));
        };
        var view = F2(function (address,model) {
                      return A2($Html.div

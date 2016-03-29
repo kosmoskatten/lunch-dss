@@ -83,7 +83,9 @@ viewPageHeader =
     [ w3Container
     , w3Blue
     ]
-    [ h2 [ w3Center ] [ text "Lunch? Choose from:" ] ]
+    [ h2 [ w3Center ] 
+        [ text "Hungrig? Välj en strategi:" ] 
+    ]
 
 -- | Display the group of navigation buttons.
 viewButtonGroup : Signal.Address Action -> Html
@@ -93,17 +95,17 @@ viewButtonGroup address =
         [ w3Btn, w3LightBlue, style [("width", "33.3%")]
         , onClick address (SwitchDisplay Closest)
         ]
-        [ text "Closest" ]
+        [ text "Närmaste" ]
     , button
         [ w3Btn, w3LightBlue, style [("width", "33.3%")]
         , onClick address (SwitchDisplay Best)
         ]
-        [ text "Best" ]
+        [ text "Bästa" ]
     , button
         [ w3Btn, w3LightBlue, style [("width", "33.3%")]
         , onClick address (SwitchDisplay Random)
         ]
-        [ text "Random" ]
+        [ text "Slumpen" ]
     ]
 
 viewClosestDisplay : Signal.Address Action -> Model -> Html
