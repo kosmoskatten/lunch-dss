@@ -1,7 +1,8 @@
 module Position
   ( Position
-  , Distance
+  , Distance (..)
   , position
+  , renderDistance
   , calculateDistance
   ) where
 
@@ -24,6 +25,14 @@ position =
     ("latitude"  := float)
     ("longitude" := float)
 
+-- | Render a distance to a string.
+renderDistance : Distance -> String
+renderDistance d =
+  let asMeter = toMeter d
+  in if asMeter < 10000 
+        then toString (round asMeter) ++ " m"
+        else toString (round (toKM d)) ++ " km"
+
 -- | Calculate the distance between two positions using
 -- Pythagoras' formula.
 calculateDistance : Position -> Position -> Distance
@@ -37,13 +46,13 @@ calculateDistance pos1 pos2 =
 -- simplified at the moment as it approximates the unit - value of
 -- distance 1 - to 75000 meters. Kind of works for southern Sweden
 -- I think.
-toMeter : Distance -> Distance
-toMeter (Distance d) = Distance (d * unit)
+toMeter : Distance -> Float
+toMeter (Distance d) = d * unit
 
-toKM : Distance -> Distance
+toKM : Distance -> Float
 toKM d =
-  let (Distance d') = toMeter d
-  in Distance (d' / 1000)
+  let d' = toMeter d
+  in d' / 1000
 
 unit : Float
 unit = 75000

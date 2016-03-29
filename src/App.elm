@@ -6,7 +6,7 @@ module App
   ) where
 
 import Html exposing (..)
-import Html.Attributes exposing (class, style)
+import Html.Attributes exposing (class, style, href, target)
 import Html.Events exposing (onClick)
 import Http exposing (get)
 import Effects exposing (Effects, none)
@@ -14,7 +14,7 @@ import Json.Decode exposing (Decoder, list)
 import Task exposing (..)
 
 import Restaurant exposing (Restaurant, restaurant)
-import Position exposing (Position)
+import Position exposing (Position, Distance (..), renderDistance)
 
 type alias Model =
   { currentPosition : Maybe Position
@@ -34,6 +34,13 @@ type Display
   = Closest
   | Best
   | Random
+
+type alias DisplayItem =
+  { name     : String
+  , url      : String
+  , rating   : Int
+  , distance : Maybe Distance
+  }
 
 -- | Initial model, with default values and an action to fetch the list
 -- of restaurants from the server.
@@ -67,7 +74,7 @@ update action model =
 
 view : Signal.Address Action -> Model -> Html
 view address model =
-  div [ w3Container ]
+  div [ class "w3-container" ]
     [ viewPageHeader
     , viewButtonGroup address
     , case model.display of
@@ -80,29 +87,27 @@ view address model =
 viewPageHeader : Html
 viewPageHeader =
   header
-    [ w3Container
-    , w3Blue
-    ]
-    [ h2 [ w3Center ] 
-        [ text "Hungrig? Välj en strategi:" ] 
+    [ class "w3-container w3-blue" ]
+    [ h2 [ class "w3-center" ]
+        [ text "Hungrig? Välj en strategi:" ]
     ]
 
 -- | Display the group of navigation buttons.
 viewButtonGroup : Signal.Address Action -> Html
 viewButtonGroup address =
-  div [ w3BtnGroup ]
+  div [ class "w3-btn-group" ]
     [ button
-        [ w3Btn, w3LightBlue, style [("width", "33.3%")]
+        [ class "w3-btn w3-light-blue", style [("width", "33.3%")]
         , onClick address (SwitchDisplay Closest)
         ]
         [ text "Närmaste" ]
     , button
-        [ w3Btn, w3LightBlue, style [("width", "33.3%")]
+        [ class "w3-btn w3-light-blue", style [("width", "33.3%")]
         , onClick address (SwitchDisplay Best)
         ]
         [ text "Bästa" ]
     , button
-        [ w3Btn, w3LightBlue, style [("width", "33.3%")]
+        [ class "w3-btn w3-light-blue", style [("width", "33.3%")]
         , onClick address (SwitchDisplay Random)
         ]
         [ text "Slumpen" ]
@@ -110,7 +115,29 @@ viewButtonGroup address =
 
 viewClosestDisplay : Signal.Address Action -> Model -> Html
 viewClosestDisplay address model =
-  text "Closest"
+  -- Ok, this construction with consing is due to generated list of
+  -- table rows. Need to be same list of nodes as the table head.
+  table
+    [ class "w3-table w3-border w3-bordered w3-striped" ]
+    ( tr [ class "w3-light-grey" ]
+        [ td [] [ text "Namn" ]
+        , td [] [ text "Avstånd" ]
+        , td [] [ text "Poäng" ]
+        , td [] [ text "Bedöm!" ]
+        ] :: List.map (viewDisplayItem address) fakeItems )
+
+fakeItems : List DisplayItem
+fakeItems =
+  [ { name = "Husman", url= "http://www.restauranghusman.se"
+    , distance = Just (Distance 0.001), rating = 2 
+    }
+  , { name = "CommInn", url = "http://www.comminn.se"
+    , distance = Just (Distance 0.0022), rating = 3 
+    }
+  , { name = "Matkultur", url = "http://www.matkultur.se"
+    , distance = Just (Distance 0.0356), rating = 5
+    }
+  ]
 
 viewBestDisplay : Signal.Address Action -> Model -> Html
 viewBestDisplay address model =
@@ -119,6 +146,26 @@ viewBestDisplay address model =
 viewRandomDisplay : Signal.Address Action -> Model -> Html
 viewRandomDisplay address model =
   text "Random"
+
+viewDisplayItem : Signal.Address Action -> DisplayItem -> Html
+viewDisplayItem address item =
+  tr []
+    [ td []
+        [ a [ href item.url
+            , target "_blank"
+            ] [ text item.name ]
+        ]
+    , td []
+        [ text (Maybe.withDefault "-"
+               (Maybe.map renderDistance item.distance))
+        ]
+    , td [] [ text (toString item.rating) ]
+    , td []
+        [ i [ class "fa fa-thumbs-o-up"
+            , style [("padding-right", "15px")]] []
+        , i [ class "fa fa-thumbs-o-down" ] []
+        ]
+    ]
 
 getRestaurants : Effects Action
 getRestaurants =
@@ -132,22 +179,3 @@ decodeRestaurants = list restaurant
 
 restaurantsUrl : String
 restaurantsUrl = "/resources/restaurants.json"
-
--- W3 helpers.
-w3Container : Html.Attribute
-w3Container = class "w3-container"
-
-w3BtnGroup : Html.Attribute
-w3BtnGroup = class "w3-btn-group"
-
-w3Btn : Html.Attribute
-w3Btn = class "w3-btn"
-
-w3Blue : Html.Attribute
-w3Blue = class "w3-blue"
-
-w3LightBlue : Html.Attribute
-w3LightBlue = class "w3-light-blue"
-
-w3Center : Html.Attribute
-w3Center = class "w3-center"
