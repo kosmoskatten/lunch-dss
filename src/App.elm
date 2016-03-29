@@ -91,27 +91,27 @@ view address model =
 viewPageHeader : Html
 viewPageHeader =
   header
-    [ class "w3-container w3-blue" ]
+    [ class "w3-container w3-black" ]
     [ h2 [ class "w3-center" ]
-        [ text "Hungrig? Välj en strategi:" ]
+        [ text "Välj en matstrategi:" ]
     ]
 
 -- | Display the group of navigation buttons.
 viewButtonGroup : Signal.Address Action -> Html
 viewButtonGroup address =
-  div [ class "w3-btn-group" ]
+  div [ class "w3-btn-group w3-border" ]
     [ button
-        [ class "w3-btn w3-light-blue", style [("width", "33.3%")]
+        [ class "w3-btn w3-light-grey w3-border", style [("width", "33.3%")]
         , onClick address (SwitchDisplay Closest)
         ]
         [ text "Närmaste" ]
     , button
-        [ class "w3-btn w3-light-blue", style [("width", "33.3%")]
+        [ class "w3-btn w3-light-grey w3-border", style [("width", "33.3%")]
         , onClick address (SwitchDisplay Best)
         ]
         [ text "Bästa" ]
     , button
-        [ class "w3-btn w3-light-blue", style [("width", "33.3%")]
+        [ class "w3-btn w3-light-grey w3-border", style [("width", "33.3%")]
         , onClick address (SwitchDisplay Random)
         ]
         [ text "Slumpen" ]
@@ -128,25 +128,12 @@ viewRestaurantDisplay address items =
   -- table rows. Need to be same list of nodes as the table head.
   table
     [ class "w3-table w3-border w3-bordered w3-striped" ]
-    ( tr [ class "w3-light-grey" ]
+    ( tr [ class "w3-blue-grey" ]
         [ td [] [ text "Namn" ]
         , td [] [ text "Avstånd" ]
         , td [] [ text "Poäng" ]
         , td [] [ text "Bedöm!" ]
         ] :: List.map (viewDisplayItem address) items )
-
-fakeItems : List DisplayItem
-fakeItems =
-  [ { name = "Husman", url= "http://www.restauranghusman.se"
-    , distance = Just (Distance 0.001), rating = 2 
-    }
-  , { name = "CommInn", url = "http://www.comminn.se"
-    , distance = Just (Distance 0.0022), rating = 3 
-    }
-  , { name = "Matkultur", url = "http://www.matkultur.se"
-    , distance = Just (Distance 0.0356), rating = 5
-    }
-  ]
 
 viewBestDisplay : Signal.Address Action -> Model -> Html
 viewBestDisplay address model =
@@ -158,7 +145,7 @@ viewRandomDisplay address model =
 
 viewDisplayItem : Signal.Address Action -> DisplayItem -> Html
 viewDisplayItem address item =
-  tr []
+  tr [ class "w3-dark-grey" ]
     [ td []
         [ a [ href item.url
             , target "_blank"

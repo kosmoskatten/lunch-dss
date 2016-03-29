@@ -12370,7 +12370,7 @@ Elm.App.make = function (_elm) {
                              });
        var viewDisplayItem = F2(function (address,item) {
                                 return A2($Html.tr
-                                         ,_U.list([])
+                                         ,_U.list([$Html$Attributes.$class("w3-dark-grey")])
                                          ,_U.list([A2($Html.td
                                                      ,_U.list([])
                                                      ,_U.list([A2($Html.a
@@ -12403,24 +12403,12 @@ Elm.App.make = function (_elm) {
        var viewBestDisplay = F2(function (address,model) {
                                 return $Html.text("Best");
                              });
-       var fakeItems = _U.list([{name: "Husman"
-                                ,url: "http://www.restauranghusman.se"
-                                ,distance: $Maybe.Just($Position.Distance(1.0e-3))
-                                ,rating: 2}
-                               ,{name: "CommInn"
-                                ,url: "http://www.comminn.se"
-                                ,distance: $Maybe.Just($Position.Distance(2.2e-3))
-                                ,rating: 3}
-                               ,{name: "Matkultur"
-                                ,url: "http://www.matkultur.se"
-                                ,distance: $Maybe.Just($Position.Distance(3.56e-2))
-                                ,rating: 5}]);
        var viewRestaurantDisplay = F2(function (address,items) {
                                       return A2($Html.table
                                                ,_U.list([$Html$Attributes.$class("w3-table w3-border w3-bordered w3-striped")])
                                                ,A2($List._op["::"]
                                                   ,A2($Html.tr
-                                                     ,_U.list([$Html$Attributes.$class("w3-light-grey")])
+                                                     ,_U.list([$Html$Attributes.$class("w3-blue-grey")])
                                                      ,_U.list([A2($Html.td,_U.list([]),_U.list([$Html.text("Namn")]))
                                                               ,A2($Html.td,_U.list([]),_U.list([$Html.text("Avstånd")]))
                                                               ,A2($Html.td,_U.list([]),_U.list([$Html.text("Poäng")]))
@@ -12434,10 +12422,10 @@ Elm.App.make = function (_elm) {
                                    return A2(viewRestaurantDisplay,address,items);
                                 });
        var viewPageHeader = A2($Html.header
-                              ,_U.list([$Html$Attributes.$class("w3-container w3-blue")])
+                              ,_U.list([$Html$Attributes.$class("w3-container w3-black")])
                               ,_U.list([A2($Html.h2
                                           ,_U.list([$Html$Attributes.$class("w3-center")])
-                                          ,_U.list([$Html.text("Hungrig? Välj en strategi:")]))]));
+                                          ,_U.list([$Html.text("Välj en matstrategi:")]))]));
        var update = F2(function (action,model) {
                        var _p1 = action;
                        switch (_p1.ctor)
@@ -12472,23 +12460,23 @@ Elm.App.make = function (_elm) {
        };
        var viewButtonGroup = function (address) {
           return A2($Html.div
-                   ,_U.list([$Html$Attributes.$class("w3-btn-group")])
+                   ,_U.list([$Html$Attributes.$class("w3-btn-group w3-border")])
                    ,_U.list([A2($Html.button
-                               ,_U.list([$Html$Attributes.$class("w3-btn w3-light-blue")
+                               ,_U.list([$Html$Attributes.$class("w3-btn w3-light-grey w3-border")
                                         ,$Html$Attributes.style(_U.list([{ctor: "_Tuple2"
                                                                          ,_0: "width"
                                                                          ,_1: "33.3%"}]))
                                         ,A2($Html$Events.onClick,address,SwitchDisplay(Closest))])
                                ,_U.list([$Html.text("Närmaste")]))
                             ,A2($Html.button
-                               ,_U.list([$Html$Attributes.$class("w3-btn w3-light-blue")
+                               ,_U.list([$Html$Attributes.$class("w3-btn w3-light-grey w3-border")
                                         ,$Html$Attributes.style(_U.list([{ctor: "_Tuple2"
                                                                          ,_0: "width"
                                                                          ,_1: "33.3%"}]))
                                         ,A2($Html$Events.onClick,address,SwitchDisplay(Best))])
                                ,_U.list([$Html.text("Bästa")]))
                             ,A2($Html.button
-                               ,_U.list([$Html$Attributes.$class("w3-btn w3-light-blue")
+                               ,_U.list([$Html$Attributes.$class("w3-btn w3-light-grey w3-border")
                                         ,$Html$Attributes.style(_U.list([{ctor: "_Tuple2"
                                                                          ,_0: "width"
                                                                          ,_1: "33.3%"}]))
