@@ -14,7 +14,11 @@ import Json.Decode exposing (Decoder, list)
 import Task exposing (..)
 
 import Restaurant exposing (Restaurant, restaurant)
-import Position exposing (Position, Distance (..), renderDistance)
+import Position exposing ( Position
+                         , Distance (..)
+                         , calculateDistance
+                         , renderDistance
+                         )
 
 type alias Model =
   { currentPosition : Maybe Position
@@ -115,6 +119,11 @@ viewButtonGroup address =
 
 viewClosestDisplay : Signal.Address Action -> Model -> Html
 viewClosestDisplay address model =
+  let items = List.map (makeDisplayItem model) model.restaurants
+  in viewRestaurantDisplay address items
+
+viewRestaurantDisplay : Signal.Address Action -> List DisplayItem -> Html
+viewRestaurantDisplay address items =
   -- Ok, this construction with consing is due to generated list of
   -- table rows. Need to be same list of nodes as the table head.
   table
@@ -124,7 +133,7 @@ viewClosestDisplay address model =
         , td [] [ text "Avstånd" ]
         , td [] [ text "Poäng" ]
         , td [] [ text "Bedöm!" ]
-        ] :: List.map (viewDisplayItem address) fakeItems )
+        ] :: List.map (viewDisplayItem address) items )
 
 fakeItems : List DisplayItem
 fakeItems =
@@ -166,6 +175,16 @@ viewDisplayItem address item =
         , i [ class "fa fa-thumbs-o-down" ] []
         ]
     ]
+
+makeDisplayItem : Model -> Restaurant -> DisplayItem
+makeDisplayItem model rest =
+  { name     = rest.name
+  , url      = rest.url
+  , rating   = rest.rating
+  , distance = case model.currentPosition of
+                 Just p  -> Just (calculateDistance p rest.position)
+                 Nothing -> Nothing
+  }
 
 getRestaurants : Effects Action
 getRestaurants =

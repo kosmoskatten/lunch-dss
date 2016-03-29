@@ -1,12 +1,82 @@
 [
  {
-   "name": "Gyllene Måsen",
-   "url": "http://baarf.com",
+   "name": "Husman",
+   "url": "http://restauranghusman.se",
    "rating": 0,
    "position":
       {
-        "latitude": 1.1,
-        "longitude": 2.2
+        "latitude": 58.3949,
+        "longitude": 15.56112
+      }
+ },
+ {
+   "name": "Matkultur",
+   "url": "http://matkultur.net",
+   "rating": 0,
+   "position":
+      {
+        "latitude": 58.39309,
+        "longitude": 15.56435
+      }
+ },
+ {
+   "name": "Com.Inn",
+   "url": "http://www.cominn.nu/veckans-meny/",
+   "rating": 0,
+   "position":
+      {
+        "latitude": 58.39307,
+        "longitude": 15.56074
+      }
+ },
+ {
+   "name": "Collegium",
+   "url": "http://www.sodexomeetings.se/collegium/sv/restaurang-och-cafe/lunchmeny/",
+   "rating": 0,
+   "position":
+      {
+        "latitude": 58.39297,
+        "longitude":15.56079
+      }
+ },
+ {
+   "name": "Chili & Lime",
+   "url": "http://chili-lime.se",
+   "rating": 0,
+   "position":
+      {
+        "latitude": 58.39419,
+        "longitude": 15.55921
+      }
+ },
+ {
+   "name": "Brödernas Kök",
+   "url": "http://www.brödernaskök.se/MenyBrodernas.pdf",
+   "rating": 0,
+   "position":
+      {
+        "latitude": 58.39434,
+        "longitude": 15.55950
+      }
+ },
+ {
+   "name": "P2 (Golfen)",
+   "url": "http://www.p2g.se",
+   "rating": 0,
+   "position":
+      {
+        "latitude": 58.40155,
+        "longitude": 15.57061
+      }
+ },
+ {
+   "name": "Calle C (Malmen)",
+   "url": "http://www.gastromix.se/lunchmeny/",
+   "rating": 0,
+   "position":
+      {
+        "latitude": 58.41022,
+        "longitude": 15.52381
       }
  }
 ]

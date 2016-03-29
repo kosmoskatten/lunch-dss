@@ -12353,6 +12353,21 @@ Elm.App.make = function (_elm) {
        var restaurantsUrl = "/resources/restaurants.json";
        var decodeRestaurants =
        $Json$Decode.list($Restaurant.restaurant);
+       var makeDisplayItem = F2(function (model,rest) {
+                                return {name: rest.name
+                                       ,url: rest.url
+                                       ,rating: rest.rating
+                                       ,distance: function () {
+                                          var _p0 = model.currentPosition;
+                                          if (_p0.ctor === "Just") {
+                                             return $Maybe.Just(A2($Position.calculateDistance
+                                                                  ,_p0._0
+                                                                  ,rest.position));
+                                          } else {
+                                             return $Maybe.Nothing;
+                                          }
+                                       }()};
+                             });
        var viewDisplayItem = F2(function (address,item) {
                                 return A2($Html.tr
                                          ,_U.list([])
@@ -12400,17 +12415,23 @@ Elm.App.make = function (_elm) {
                                 ,url: "http://www.matkultur.se"
                                 ,distance: $Maybe.Just($Position.Distance(3.56e-2))
                                 ,rating: 5}]);
+       var viewRestaurantDisplay = F2(function (address,items) {
+                                      return A2($Html.table
+                                               ,_U.list([$Html$Attributes.$class("w3-table w3-border w3-bordered w3-striped")])
+                                               ,A2($List._op["::"]
+                                                  ,A2($Html.tr
+                                                     ,_U.list([$Html$Attributes.$class("w3-light-grey")])
+                                                     ,_U.list([A2($Html.td,_U.list([]),_U.list([$Html.text("Namn")]))
+                                                              ,A2($Html.td,_U.list([]),_U.list([$Html.text("Avstånd")]))
+                                                              ,A2($Html.td,_U.list([]),_U.list([$Html.text("Poäng")]))
+                                                              ,A2($Html.td,_U.list([]),_U.list([$Html.text("Bedöm!")]))]))
+                                                  ,A2($List.map,viewDisplayItem(address),items)));
+                                   });
        var viewClosestDisplay = F2(function (address,model) {
-                                   return A2($Html.table
-                                            ,_U.list([$Html$Attributes.$class("w3-table w3-border w3-bordered w3-striped")])
-                                            ,A2($List._op["::"]
-                                               ,A2($Html.tr
-                                                  ,_U.list([$Html$Attributes.$class("w3-light-grey")])
-                                                  ,_U.list([A2($Html.td,_U.list([]),_U.list([$Html.text("Namn")]))
-                                                           ,A2($Html.td,_U.list([]),_U.list([$Html.text("Avstånd")]))
-                                                           ,A2($Html.td,_U.list([]),_U.list([$Html.text("Poäng")]))
-                                                           ,A2($Html.td,_U.list([]),_U.list([$Html.text("Bedöm!")]))]))
-                                               ,A2($List.map,viewDisplayItem(address),fakeItems)));
+                                   var items = A2($List.map
+                                                 ,makeDisplayItem(model)
+                                                 ,model.restaurants);
+                                   return A2(viewRestaurantDisplay,address,items);
                                 });
        var viewPageHeader = A2($Html.header
                               ,_U.list([$Html$Attributes.$class("w3-container w3-blue")])
@@ -12418,25 +12439,25 @@ Elm.App.make = function (_elm) {
                                           ,_U.list([$Html$Attributes.$class("w3-center")])
                                           ,_U.list([$Html.text("Hungrig? Välj en strategi:")]))]));
        var update = F2(function (action,model) {
-                       var _p0 = action;
-                       switch (_p0.ctor)
+                       var _p1 = action;
+                       switch (_p1.ctor)
                        {
                          case "GpsPosition":
                            return {ctor: "_Tuple2"
-                                  ,_0: _U.update(model,{currentPosition: $Maybe.Just(_p0._0)})
+                                  ,_0: _U.update(model,{currentPosition: $Maybe.Just(_p1._0)})
                                   ,_1: $Effects.none};
                          case "GpsError":
                            return {ctor: "_Tuple2"
-                                  ,_0: _U.update(model,{gpsError: $Maybe.Just(_p0._0)})
+                                  ,_0: _U.update(model,{gpsError: $Maybe.Just(_p1._0)})
                                   ,_1: $Effects.none};
                          case "GotRestaurants":
                            return {ctor: "_Tuple2"
                                   ,_0: _U.update(model
-                                                ,{restaurants: A2($Maybe.withDefault,_U.list([]),_p0._0)})
+                                                ,{restaurants: A2($Maybe.withDefault,_U.list([]),_p1._0)})
                                   ,_1: $Effects.none};
                          default:
                            return {ctor: "_Tuple2"
-                                  ,_0: _U.update(model,{display: _p0._0})
+                                  ,_0: _U.update(model,{display: _p1._0})
                                   ,_1: $Effects.none};
                        }
                     });
@@ -12480,8 +12501,8 @@ Elm.App.make = function (_elm) {
                               ,_U.list([viewPageHeader
                                        ,viewButtonGroup(address)
                                        ,function () {
-                                          var _p1 = model.display;
-                                          switch (_p1.ctor)
+                                          var _p2 = model.display;
+                                          switch (_p2.ctor)
                                           {
                                             case "Closest":
                                               return A2(viewClosestDisplay,address,model);
