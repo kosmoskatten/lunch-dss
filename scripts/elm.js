@@ -12371,15 +12371,38 @@ Elm.App.make = function (_elm) {
        var restaurantsUrl = "/resources/restaurants.json";
        var decodeRestaurants =
        $Json$Decode.list($Restaurant.restaurant);
+       var displayItemsByDistance = F2(function (di1,di2) {
+                                       var _p0 = {ctor: "_Tuple2",_0: di1.distance,_1: di2.distance};
+                                       if (_p0._0.ctor === "Nothing") {
+                                          if (_p0._1.ctor === "Nothing") {
+                                             return $Basics.EQ;
+                                          } else {
+                                             return $Basics.GT;
+                                          }
+                                       } else {
+                                          if (_p0._1.ctor === "Nothing") {
+                                             return $Basics.LT;
+                                          } else {
+                                             var _p1 = _p0._1._0;
+                                             var d2$ = _p1._0;
+                                             var _p2 = _p0._0._0;
+                                             var d1$ = _p2._0;
+                                             return A2($Basics.compare,d1$,d2$);
+                                          }
+                                       }
+                                    });
+       var displayItemsByRating = F2(function (di1,di2) {
+                                     return A2($Basics.compare,di2.rating,di1.rating);
+                                  });
        var makeDisplayItem = F2(function (model,rest) {
                                 return {name: rest.name
                                        ,url: rest.url
                                        ,rating: rest.rating
                                        ,distance: function () {
-                                          var _p0 = model.currentPosition;
-                                          if (_p0.ctor === "Just") {
+                                          var _p3 = model.currentPosition;
+                                          if (_p3.ctor === "Just") {
                                              return $Maybe.Just(A2($Position.calculateDistance
-                                                                  ,_p0._0
+                                                                  ,_p3._0
                                                                   ,rest.position));
                                           } else {
                                              return $Maybe.Nothing;
@@ -12389,47 +12412,44 @@ Elm.App.make = function (_elm) {
        var viewRandomDisplay = F2(function (address,model) {
                                   return $Html.text("Random");
                                });
-       var viewBestDisplay = F2(function (address,model) {
-                                return $Html.text("Best");
-                             });
        var viewPageHeader = A2($Html.header
                               ,_U.list([$Html$Attributes.$class("w3-container w3-black")])
                               ,_U.list([A2($Html.h2
                                           ,_U.list([$Html$Attributes.$class("w3-center")])
                                           ,_U.list([$Html.text("Välj en matstrategi:")]))]));
        var update = F2(function (action,model) {
-                       var _p1 = action;
-                       switch (_p1.ctor)
+                       var _p4 = action;
+                       switch (_p4.ctor)
                        {
                          case "GpsPosition":
                            return {ctor: "_Tuple2"
-                                  ,_0: _U.update(model,{currentPosition: $Maybe.Just(_p1._0)})
+                                  ,_0: _U.update(model,{currentPosition: $Maybe.Just(_p4._0)})
                                   ,_1: $Effects.none};
                          case "GpsError":
                            return {ctor: "_Tuple2"
-                                  ,_0: _U.update(model,{gpsError: $Maybe.Just(_p1._0)})
+                                  ,_0: _U.update(model,{gpsError: $Maybe.Just(_p4._0)})
                                   ,_1: $Effects.none};
                          case "GotRestaurants":
                            return {ctor: "_Tuple2"
                                   ,_0: _U.update(model
-                                                ,{restaurants: A2($Maybe.withDefault,_U.list([]),_p1._0)})
+                                                ,{restaurants: A2($Maybe.withDefault,_U.list([]),_p4._0)})
                                   ,_1: $Effects.none};
                          case "SwitchDisplay":
                            return {ctor: "_Tuple2"
-                                  ,_0: _U.update(model,{display: _p1._0})
+                                  ,_0: _U.update(model,{display: _p4._0})
                                   ,_1: $Effects.none};
                          case "ThumbsUp":
                            return {ctor: "_Tuple2"
                                   ,_0: _U.update(model
                                                 ,{restaurants: A2($List.map
-                                                                 ,thumbsUp(_p1._0)
+                                                                 ,thumbsUp(_p4._0)
                                                                  ,model.restaurants)})
                                   ,_1: $Effects.none};
                          default:
                            return {ctor: "_Tuple2"
                                   ,_0: _U.update(model
                                                 ,{restaurants: A2($List.map
-                                                                 ,thumbsDown(_p1._0)
+                                                                 ,thumbsDown(_p4._0)
                                                                  ,model.restaurants)})
                                   ,_1: $Effects.none};
                        }
@@ -12495,8 +12515,18 @@ Elm.App.make = function (_elm) {
                                    var items = A2($List.map
                                                  ,makeDisplayItem(model)
                                                  ,model.restaurants);
-                                   return A2(viewRestaurantDisplay,address,items);
+                                   var sortedItems = A2($List.sortWith
+                                                       ,displayItemsByDistance
+                                                       ,items);
+                                   return A2(viewRestaurantDisplay,address,sortedItems);
                                 });
+       var viewBestDisplay = F2(function (address,model) {
+                                var items = A2($List.map
+                                              ,makeDisplayItem(model)
+                                              ,model.restaurants);
+                                var sortedItems = A2($List.sortWith,displayItemsByRating,items);
+                                return A2(viewRestaurantDisplay,address,sortedItems);
+                             });
        var SwitchDisplay = function (a) {
           return {ctor: "SwitchDisplay",_0: a};
        };
@@ -12531,8 +12561,8 @@ Elm.App.make = function (_elm) {
                               ,_U.list([viewPageHeader
                                        ,viewButtonGroup(address)
                                        ,function () {
-                                          var _p2 = model.display;
-                                          switch (_p2.ctor)
+                                          var _p5 = model.display;
+                                          switch (_p5.ctor)
                                           {
                                             case "Closest":
                                               return A2(viewClosestDisplay,address,model);

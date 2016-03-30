@@ -135,8 +135,15 @@ viewButtonGroup address =
 
 viewClosestDisplay : Signal.Address Action -> Model -> Html
 viewClosestDisplay address model =
-  let items = List.map (makeDisplayItem model) model.restaurants
-  in viewRestaurantDisplay address items
+  let items       = List.map (makeDisplayItem model) model.restaurants
+      sortedItems = List.sortWith displayItemsByDistance items
+  in viewRestaurantDisplay address sortedItems
+
+viewBestDisplay : Signal.Address Action -> Model -> Html
+viewBestDisplay address model =
+  let items       = List.map (makeDisplayItem model) model.restaurants
+      sortedItems = List.sortWith displayItemsByRating items
+  in viewRestaurantDisplay address sortedItems
 
 viewRestaurantDisplay : Signal.Address Action -> List DisplayItem -> Html
 viewRestaurantDisplay address items =
@@ -150,10 +157,6 @@ viewRestaurantDisplay address items =
         , td [] [ text "Poäng" ]
         , td [] [ text "Bedöm!" ]
         ] :: List.map (viewDisplayItem address) items )
-
-viewBestDisplay : Signal.Address Action -> Model -> Html
-viewBestDisplay address model =
-  text "Best"
 
 viewRandomDisplay : Signal.Address Action -> Model -> Html
 viewRandomDisplay address model =
@@ -202,6 +205,22 @@ makeDisplayItem model rest =
                  Just p  -> Just (calculateDistance p rest.position)
                  Nothing -> Nothing
   }
+
+-- | Sort display items by their rating. The sorting is in reverse order.
+displayItemsByRating : DisplayItem -> DisplayItem -> Order
+displayItemsByRating di1 di2 = di2.rating `compare` di1.rating
+
+-- | Sort display items by their distance.
+displayItemsByDistance : DisplayItem -> DisplayItem -> Order
+displayItemsByDistance di1 di2 =
+  case (di1.distance, di2.distance) of
+    (Nothing, Nothing) -> EQ
+    (Just _, Nothing)  -> LT
+    (Nothing, Just _)  -> GT
+    (Just d1, Just d2) ->
+      let (Distance d1') = d1
+          (Distance d2') = d2
+      in d1' `compare` d2'
 
 getRestaurants : Effects Action
 getRestaurants =
