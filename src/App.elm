@@ -32,6 +32,8 @@ type Action
   | GpsError String
   | GotRestaurants (Maybe (List Restaurant))
   | SwitchDisplay Display
+  | ThumbsUp String
+  | ThumbsDown String
 
 -- | Enumeration of the main displays.
 type Display
@@ -75,6 +77,20 @@ update action model =
 
     SwitchDisplay display ->
       ({ model | display = display }, Effects.none)
+
+    ThumbsUp rest ->
+      (
+        { model | restaurants = List.map (thumbsUp rest) model.restaurants}
+        , Effects.none
+      )
+
+    ThumbsDown rest ->
+      (
+        { model |
+          restaurants = List.map (thumbsDown rest) model.restaurants
+        }
+        , Effects.none
+      )
 
 view : Signal.Address Action -> Model -> Html
 view address model =
@@ -146,20 +162,34 @@ viewRandomDisplay address model =
 viewDisplayItem : Signal.Address Action -> DisplayItem -> Html
 viewDisplayItem address item =
   tr [ class "w3-dark-grey" ]
+    -- Name of the restaurant and a link to it.
     [ td []
         [ a [ href item.url
             , target "_blank"
             ] [ text item.name ]
         ]
+
+    -- Distance to the restaurant.
     , td []
         [ text (Maybe.withDefault "-"
                (Maybe.map renderDistance item.distance))
         ]
+
+    -- Rating of the restaurant.
     , td [] [ text (toString item.rating) ]
+
+    -- Thumbs.
     , td []
         [ i [ class "fa fa-thumbs-o-up"
-            , style [("padding-right", "15px")]] []
-        , i [ class "fa fa-thumbs-o-down" ] []
+            , style [ ("padding-right", "15px")
+                    , ("cursor", "pointer")
+                    ]
+            , onClick address (ThumbsUp item.name)
+            ] []
+        , i [ class "fa fa-thumbs-o-down"
+            , style [ ("cursor", "pointer") ]
+            , onClick address (ThumbsDown item.name)
+            ] []
         ]
     ]
 
@@ -185,3 +215,15 @@ decodeRestaurants = list restaurant
 
 restaurantsUrl : String
 restaurantsUrl = "/resources/restaurants.json"
+
+thumbsUp : String -> Restaurant -> Restaurant
+thumbsUp name = adjustRating name (+)
+
+thumbsDown : String -> Restaurant -> Restaurant
+thumbsDown name = adjustRating name (-)
+
+adjustRating : String -> (Int -> Int -> Int) -> Restaurant -> Restaurant
+adjustRating name g rest =
+  if name == rest.name
+     then { rest | rating = rest.rating `g` 1}
+     else rest

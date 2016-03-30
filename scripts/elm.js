@@ -12350,6 +12350,24 @@ Elm.App.make = function (_elm) {
        $Signal = Elm.Signal.make(_elm),
        $Task = Elm.Task.make(_elm);
        var _op = {};
+       var adjustRating = F3(function (name,g,rest) {
+                             return _U.eq(name,rest.name) ? _U.update(rest
+                                                                     ,{rating: A2(g,rest.rating,1)}) : rest;
+                          });
+       var thumbsDown = function (name) {
+          return A2(adjustRating
+                   ,name
+                   ,F2(function (x,y) {
+                      return x - y;
+                   }));
+       };
+       var thumbsUp = function (name) {
+          return A2(adjustRating
+                   ,name
+                   ,F2(function (x,y) {
+                      return x + y;
+                   }));
+       };
        var restaurantsUrl = "/resources/restaurants.json";
        var decodeRestaurants =
        $Json$Decode.list($Restaurant.restaurant);
@@ -12368,6 +12386,64 @@ Elm.App.make = function (_elm) {
                                           }
                                        }()};
                              });
+       var viewRandomDisplay = F2(function (address,model) {
+                                  return $Html.text("Random");
+                               });
+       var viewBestDisplay = F2(function (address,model) {
+                                return $Html.text("Best");
+                             });
+       var viewPageHeader = A2($Html.header
+                              ,_U.list([$Html$Attributes.$class("w3-container w3-black")])
+                              ,_U.list([A2($Html.h2
+                                          ,_U.list([$Html$Attributes.$class("w3-center")])
+                                          ,_U.list([$Html.text("Välj en matstrategi:")]))]));
+       var update = F2(function (action,model) {
+                       var _p1 = action;
+                       switch (_p1.ctor)
+                       {
+                         case "GpsPosition":
+                           return {ctor: "_Tuple2"
+                                  ,_0: _U.update(model,{currentPosition: $Maybe.Just(_p1._0)})
+                                  ,_1: $Effects.none};
+                         case "GpsError":
+                           return {ctor: "_Tuple2"
+                                  ,_0: _U.update(model,{gpsError: $Maybe.Just(_p1._0)})
+                                  ,_1: $Effects.none};
+                         case "GotRestaurants":
+                           return {ctor: "_Tuple2"
+                                  ,_0: _U.update(model
+                                                ,{restaurants: A2($Maybe.withDefault,_U.list([]),_p1._0)})
+                                  ,_1: $Effects.none};
+                         case "SwitchDisplay":
+                           return {ctor: "_Tuple2"
+                                  ,_0: _U.update(model,{display: _p1._0})
+                                  ,_1: $Effects.none};
+                         case "ThumbsUp":
+                           return {ctor: "_Tuple2"
+                                  ,_0: _U.update(model
+                                                ,{restaurants: A2($List.map
+                                                                 ,thumbsUp(_p1._0)
+                                                                 ,model.restaurants)})
+                                  ,_1: $Effects.none};
+                         default:
+                           return {ctor: "_Tuple2"
+                                  ,_0: _U.update(model
+                                                ,{restaurants: A2($List.map
+                                                                 ,thumbsDown(_p1._0)
+                                                                 ,model.restaurants)})
+                                  ,_1: $Effects.none};
+                       }
+                    });
+       var DisplayItem = F4(function (a,b,c,d) {
+                            return {name: a,url: b,rating: c,distance: d};
+                         });
+       var Random = {ctor: "Random"};
+       var Best = {ctor: "Best"};
+       var Closest = {ctor: "Closest"};
+       var ThumbsDown = function (a) {
+          return {ctor: "ThumbsDown",_0: a};
+       };
+       var ThumbsUp = function (a) { return {ctor: "ThumbsUp",_0: a};};
        var viewDisplayItem = F2(function (address,item) {
                                 return A2($Html.tr
                                          ,_U.list([$Html$Attributes.$class("w3-dark-grey")])
@@ -12391,17 +12467,17 @@ Elm.App.make = function (_elm) {
                                                                  ,_U.list([$Html$Attributes.$class("fa fa-thumbs-o-up")
                                                                           ,$Html$Attributes.style(_U.list([{ctor: "_Tuple2"
                                                                                                            ,_0: "padding-right"
-                                                                                                           ,_1: "15px"}]))])
+                                                                                                           ,_1: "15px"}
+                                                                                                          ,{ctor: "_Tuple2",_0: "cursor",_1: "pointer"}]))
+                                                                          ,A2($Html$Events.onClick,address,ThumbsUp(item.name))])
                                                                  ,_U.list([]))
                                                               ,A2($Html.i
-                                                                 ,_U.list([$Html$Attributes.$class("fa fa-thumbs-o-down")])
+                                                                 ,_U.list([$Html$Attributes.$class("fa fa-thumbs-o-down")
+                                                                          ,$Html$Attributes.style(_U.list([{ctor: "_Tuple2"
+                                                                                                           ,_0: "cursor"
+                                                                                                           ,_1: "pointer"}]))
+                                                                          ,A2($Html$Events.onClick,address,ThumbsDown(item.name))])
                                                                  ,_U.list([]))]))]));
-                             });
-       var viewRandomDisplay = F2(function (address,model) {
-                                  return $Html.text("Random");
-                               });
-       var viewBestDisplay = F2(function (address,model) {
-                                return $Html.text("Best");
                              });
        var viewRestaurantDisplay = F2(function (address,items) {
                                       return A2($Html.table
@@ -12421,40 +12497,6 @@ Elm.App.make = function (_elm) {
                                                  ,model.restaurants);
                                    return A2(viewRestaurantDisplay,address,items);
                                 });
-       var viewPageHeader = A2($Html.header
-                              ,_U.list([$Html$Attributes.$class("w3-container w3-black")])
-                              ,_U.list([A2($Html.h2
-                                          ,_U.list([$Html$Attributes.$class("w3-center")])
-                                          ,_U.list([$Html.text("Välj en matstrategi:")]))]));
-       var update = F2(function (action,model) {
-                       var _p1 = action;
-                       switch (_p1.ctor)
-                       {
-                         case "GpsPosition":
-                           return {ctor: "_Tuple2"
-                                  ,_0: _U.update(model,{currentPosition: $Maybe.Just(_p1._0)})
-                                  ,_1: $Effects.none};
-                         case "GpsError":
-                           return {ctor: "_Tuple2"
-                                  ,_0: _U.update(model,{gpsError: $Maybe.Just(_p1._0)})
-                                  ,_1: $Effects.none};
-                         case "GotRestaurants":
-                           return {ctor: "_Tuple2"
-                                  ,_0: _U.update(model
-                                                ,{restaurants: A2($Maybe.withDefault,_U.list([]),_p1._0)})
-                                  ,_1: $Effects.none};
-                         default:
-                           return {ctor: "_Tuple2"
-                                  ,_0: _U.update(model,{display: _p1._0})
-                                  ,_1: $Effects.none};
-                       }
-                    });
-       var DisplayItem = F4(function (a,b,c,d) {
-                            return {name: a,url: b,rating: c,distance: d};
-                         });
-       var Random = {ctor: "Random"};
-       var Best = {ctor: "Best"};
-       var Closest = {ctor: "Closest"};
        var SwitchDisplay = function (a) {
           return {ctor: "SwitchDisplay",_0: a};
        };
@@ -12532,7 +12574,9 @@ Elm.App.make = function (_elm) {
                                 ,GpsPosition: GpsPosition
                                 ,GpsError: GpsError
                                 ,GotRestaurants: GotRestaurants
-                                ,SwitchDisplay: SwitchDisplay};
+                                ,SwitchDisplay: SwitchDisplay
+                                ,ThumbsUp: ThumbsUp
+                                ,ThumbsDown: ThumbsDown};
     };
 Elm.Main = Elm.Main || {};
 Elm.Main.make = function (_elm) {
