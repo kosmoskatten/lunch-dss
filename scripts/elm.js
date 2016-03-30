@@ -12328,6 +12328,51 @@ Elm.Restaurant.make = function (_elm) {
                                        ,restaurant: restaurant
                                        ,Restaurant: Restaurant};
     };
+Elm.Storage = Elm.Storage || {};
+Elm.Storage.make = function (_elm) {
+       "use strict";
+       _elm.Storage = _elm.Storage || {};
+       if (_elm.Storage.values)    return _elm.Storage.values;
+       var _U = Elm.Native.Utils.make(_elm),
+       $Basics = Elm.Basics.make(_elm),
+       $Debug = Elm.Debug.make(_elm),
+       $List = Elm.List.make(_elm),
+       $Maybe = Elm.Maybe.make(_elm),
+       $Result = Elm.Result.make(_elm),
+       $Signal = Elm.Signal.make(_elm),
+       $Task = Elm.Task.make(_elm);
+       var _op = {};
+       var storageMailbox = $Signal.mailbox({op: "NoOp"
+                                            ,values: _U.list([])});
+       var fetchFor = function (names) {
+          return A2($Signal.send
+                   ,storageMailbox.address
+                   ,{op: "fetchAll",values: names});
+       };
+       var dec = function (name) {
+          return A2($Signal.send
+                   ,storageMailbox.address
+                   ,{op: "dec",values: _U.list([name])});
+       };
+       var inc = function (name) {
+          return A2($Signal.send
+                   ,storageMailbox.address
+                   ,{op: "inc",values: _U.list([name])});
+       };
+       var StorageData = F2(function (a,b) {
+                            return {name: a,rating: b};
+                         });
+       var StorageCtrl = F2(function (a,b) {
+                            return {op: a,values: b};
+                         });
+       return _elm.Storage.values = {_op: _op
+                                    ,inc: inc
+                                    ,dec: dec
+                                    ,fetchFor: fetchFor
+                                    ,storageMailbox: storageMailbox
+                                    ,StorageCtrl: StorageCtrl
+                                    ,StorageData: StorageData};
+    };
 Elm.App = Elm.App || {};
 Elm.App.make = function (_elm) {
        "use strict";
@@ -12348,6 +12393,7 @@ Elm.App.make = function (_elm) {
        $Restaurant = Elm.Restaurant.make(_elm),
        $Result = Elm.Result.make(_elm),
        $Signal = Elm.Signal.make(_elm),
+       $Storage = Elm.Storage.make(_elm),
        $Task = Elm.Task.make(_elm);
        var _op = {};
        var adjustRating = F3(function (name,g,rest) {
@@ -12417,6 +12463,18 @@ Elm.App.make = function (_elm) {
                               ,_U.list([A2($Html.h2
                                           ,_U.list([$Html$Attributes.$class("w3-center")])
                                           ,_U.list([$Html.text("Välj en matstrategi:")]))]));
+       var DisplayItem = F4(function (a,b,c,d) {
+                            return {name: a,url: b,rating: c,distance: d};
+                         });
+       var Random = {ctor: "Random"};
+       var Best = {ctor: "Best"};
+       var Closest = {ctor: "Closest"};
+       var NoOp = {ctor: "NoOp"};
+       var fetchRatingsFor = function (names) {
+          return $Effects.task(A2($Task.andThen
+                                 ,$Storage.fetchFor(names)
+                                 ,$Basics.always($Task.succeed(NoOp))));
+       };
        var update = F2(function (action,model) {
                        var _p4 = action;
                        switch (_p4.ctor)
@@ -12433,7 +12491,7 @@ Elm.App.make = function (_elm) {
                            return {ctor: "_Tuple2"
                                   ,_0: _U.update(model
                                                 ,{restaurants: A2($Maybe.withDefault,_U.list([]),_p4._0)})
-                                  ,_1: $Effects.none};
+                                  ,_1: fetchRatingsFor(_U.list([]))};
                          case "SwitchDisplay":
                            return {ctor: "_Tuple2"
                                   ,_0: _U.update(model,{display: _p4._0})
@@ -12445,21 +12503,17 @@ Elm.App.make = function (_elm) {
                                                                  ,thumbsUp(_p4._0)
                                                                  ,model.restaurants)})
                                   ,_1: $Effects.none};
-                         default:
+                         case "ThumbsDown":
                            return {ctor: "_Tuple2"
                                   ,_0: _U.update(model
                                                 ,{restaurants: A2($List.map
                                                                  ,thumbsDown(_p4._0)
                                                                  ,model.restaurants)})
                                   ,_1: $Effects.none};
+                         default:
+                           return {ctor: "_Tuple2",_0: model,_1: $Effects.none};
                        }
                     });
-       var DisplayItem = F4(function (a,b,c,d) {
-                            return {name: a,url: b,rating: c,distance: d};
-                         });
-       var Random = {ctor: "Random"};
-       var Best = {ctor: "Best"};
-       var Closest = {ctor: "Closest"};
        var ThumbsDown = function (a) {
           return {ctor: "ThumbsDown",_0: a};
        };
@@ -12606,7 +12660,8 @@ Elm.App.make = function (_elm) {
                                 ,GotRestaurants: GotRestaurants
                                 ,SwitchDisplay: SwitchDisplay
                                 ,ThumbsUp: ThumbsUp
-                                ,ThumbsDown: ThumbsDown};
+                                ,ThumbsDown: ThumbsDown
+                                ,NoOp: NoOp};
     };
 Elm.Main = Elm.Main || {};
 Elm.Main.make = function (_elm) {
@@ -12625,8 +12680,18 @@ Elm.Main.make = function (_elm) {
        $Result = Elm.Result.make(_elm),
        $Signal = Elm.Signal.make(_elm),
        $StartApp = Elm.StartApp.make(_elm),
+       $Storage = Elm.Storage.make(_elm),
        $Task = Elm.Task.make(_elm);
        var _op = {};
+       var storageCtrl =
+       Elm.Native.Port.make(_elm).outboundSignal("storageCtrl"
+                                                ,function (v) {
+                                                   return {op: v.op
+                                                          ,values: Elm.Native.List.make(_elm).toArray(v.values).map(function (v) {
+                                                             return v;
+                                                          })};
+                                                }
+                                                ,$Storage.storageMailbox.signal);
        var gpsError =
        Elm.Native.Port.make(_elm).inboundSignal("gpsError"
                                                ,"String"

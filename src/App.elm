@@ -19,6 +19,7 @@ import Position exposing ( Position
                          , calculateDistance
                          , renderDistance
                          )
+import Storage exposing (fetchFor)
 
 type alias Model =
   { currentPosition : Maybe Position
@@ -34,6 +35,7 @@ type Action
   | SwitchDisplay Display
   | ThumbsUp String
   | ThumbsDown String
+  | NoOp
 
 -- | Enumeration of the main displays.
 type Display
@@ -72,7 +74,7 @@ update action model =
     GotRestaurants maybeRs ->
       (
         { model | restaurants = Maybe.withDefault [] maybeRs }
-      , Effects.none
+      , fetchRatingsFor []
       )
 
     SwitchDisplay display ->
@@ -91,6 +93,8 @@ update action model =
         }
         , Effects.none
       )
+
+    NoOp -> (model, Effects.none)
 
 view : Signal.Address Action -> Model -> Html
 view address model =
@@ -227,6 +231,11 @@ getRestaurants =
   Http.get decodeRestaurants restaurantsUrl
     |> Task.toMaybe
     |> Task.map GotRestaurants
+    |> Effects.task
+
+fetchRatingsFor : List String -> Effects Action
+fetchRatingsFor names =
+  fetchFor names `andThen` always (succeed NoOp)
     |> Effects.task
 
 decodeRestaurants : Decoder (List Restaurant)

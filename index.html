@@ -8,6 +8,7 @@
   <body>
     <script src="scripts/elm.js"></script>
     <script src="scripts/gps.js"></script>
+    <script src="scripts/storage.js"></script>
     <script>
       var app=Elm.fullscreen
         (Elm.Main,
@@ -21,6 +22,7 @@
          }
         );
         startGps(app);
+        startStorage(app);
     </script>
   </body>
 </html>

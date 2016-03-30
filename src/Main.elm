@@ -7,6 +7,7 @@ import Task exposing (..)
 
 import App exposing (Action (..), initialModel, update, view)
 import Position exposing (Position)
+import Storage exposing (StorageCtrl, storageMailbox)
 
 main : Signal Html
 main = app.html
@@ -32,3 +33,7 @@ port gpsPosition : Signal Position
 
 -- | Getting Gps errors from Javascript.
 port gpsError : Signal String
+
+-- | Outgoing port to control storage in Javascript.
+port storageCtrl : Signal StorageCtrl
+port storageCtrl = storageMailbox.signal
