@@ -19,7 +19,7 @@ import Position exposing ( Position
                          , calculateDistance
                          , renderDistance
                          )
-import Storage exposing (fetchFor)
+import Storage exposing (fetchFor, inc, dec)
 
 type alias Model =
   { currentPosition : Maybe Position
@@ -83,7 +83,7 @@ update action model =
     ThumbsUp rest ->
       (
         { model | restaurants = List.map (thumbsUp rest) model.restaurants}
-        , Effects.none
+        , incStoredRatingFor rest
       )
 
     ThumbsDown rest ->
@@ -91,7 +91,7 @@ update action model =
         { model |
           restaurants = List.map (thumbsDown rest) model.restaurants
         }
-        , Effects.none
+        , decStoredRatingFor rest
       )
 
     NoOp -> (model, Effects.none)
@@ -236,6 +236,16 @@ getRestaurants =
 fetchRatingsFor : List String -> Effects Action
 fetchRatingsFor names =
   fetchFor names `andThen` always (succeed NoOp)
+    |> Effects.task
+
+incStoredRatingFor : String -> Effects Action
+incStoredRatingFor name =
+  inc name `andThen` always (succeed NoOp)
+    |> Effects.task
+
+decStoredRatingFor : String -> Effects Action
+decStoredRatingFor name =
+  dec name `andThen` always (succeed NoOp)
     |> Effects.task
 
 decodeRestaurants : Decoder (List Restaurant)
