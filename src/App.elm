@@ -35,6 +35,7 @@ type Action
   | SwitchDisplay Display
   | ThumbsUp String
   | ThumbsDown String
+  | RestaurantRatings (List Restaurant)
   | NoOp
 
 -- | Enumeration of the main displays.
@@ -72,10 +73,8 @@ update action model =
       ({ model | gpsError = Just err }, Effects.none)
 
     GotRestaurants maybeRs ->
-      (
-        { model | restaurants = Maybe.withDefault [] maybeRs }
-      , fetchRatingsFor []
-      )
+      let rs = Maybe.withDefault [] maybeRs
+      in ({ model | restaurants = rs } , fetchRatingsFor rs)
 
     SwitchDisplay display ->
       ({ model | display = display }, Effects.none)
@@ -93,6 +92,9 @@ update action model =
         }
         , decStoredRatingFor rest
       )
+
+    RestaurantRatings rs ->
+      ({ model | restaurants = rs }, Effects.none)
 
     NoOp -> (model, Effects.none)
 
@@ -233,9 +235,9 @@ getRestaurants =
     |> Task.map GotRestaurants
     |> Effects.task
 
-fetchRatingsFor : List String -> Effects Action
-fetchRatingsFor names =
-  fetchFor names `andThen` always (succeed NoOp)
+fetchRatingsFor : List Restaurant -> Effects Action
+fetchRatingsFor restaurants =
+  fetchFor restaurants `andThen` always (succeed NoOp)
     |> Effects.task
 
 incStoredRatingFor : String -> Effects Action

@@ -7,6 +7,7 @@ import Task exposing (..)
 
 import App exposing (Action (..), initialModel, update, view)
 import Position exposing (Position)
+import Restaurant exposing (Restaurant)
 import Storage exposing (StorageCtrl, storageMailbox)
 
 main : Signal Html
@@ -21,6 +22,7 @@ app =
     , inputs =
         [ Signal.map GpsPosition gpsPosition
         , Signal.map GpsError gpsError
+        , Signal.map RestaurantRatings storageData
         ]
     }
 
@@ -37,3 +39,6 @@ port gpsError : Signal String
 -- | Outgoing port to control storage in Javascript.
 port storageCtrl : Signal StorageCtrl
 port storageCtrl = storageMailbox.signal
+
+-- | Getting updated restaurant list with ratings from Javascript.
+port storageData : Signal (List Restaurant)

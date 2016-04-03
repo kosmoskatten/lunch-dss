@@ -1,6 +1,5 @@
 module Storage
   ( StorageCtrl
-  , StorageData
   , inc
   , dec
   , fetchFor
@@ -8,36 +7,44 @@ module Storage
   ) where
 
 import Task exposing (..)
+import Restaurant exposing (Restaurant)
 
 type alias StorageCtrl =
-  { op     : String
-  , values : List String
-  }
-
-type alias StorageData =
-  { name   : String
-  , rating : Int
+  { op          : String
+  , restaurant  : Maybe String
+  , restaurants : Maybe (List Restaurant)
   }
 
 inc : String -> Task x ()
-inc name = Signal.send storageMailbox.address
-             { op     = "inc"
-             , values = [name]
-             }
+inc name =
+  Signal.send storageMailbox.address
+    { op          = "inc"
+    , restaurant  = Just name
+    , restaurants = Nothing
+    }
 
 dec : String -> Task x ()
-dec name = Signal.send storageMailbox.address
-             { op     = "dec"
-             , values = [name]
-             }
+dec name =
+  Signal.send storageMailbox.address
+    { op          = "dec"
+    , restaurant  = Just name
+    , restaurants = Nothing
+    }
 
-fetchFor : List String -> Task x ()
-fetchFor names = Signal.send storageMailbox.address
-                   { op     = "fetchAll"
-                   , values = names
-                   }
+fetchFor : List Restaurant -> Task x ()
+fetchFor restaurants = 
+  Signal.send storageMailbox.address
+    { op          = "fetchAll"
+    , restaurant  = Nothing
+    , restaurants = Just restaurants
+    }
 
 -- | Mailbox for outgoing control messages to the native implemented
 -- local storage.
 storageMailbox : Signal.Mailbox StorageCtrl
-storageMailbox = Signal.mailbox { op = "NoOp", values = [] }
+storageMailbox =
+  Signal.mailbox
+    { op          = "NoOp"
+    , restaurant  = Nothing
+    , restaurants = Nothing
+    }
